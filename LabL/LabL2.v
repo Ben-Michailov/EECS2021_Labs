@@ -23,15 +23,9 @@ begin
                         c=m;
 
                         if (c === 0)
-                        begin
-                            expect[0] = a[0];
-                            expect[1] =a[1];
-                        end
+                            expect =a;
                         else
-                        begin
-                            expect[0] = b[0];
-                            expect[1] =b[1];
-                        end
+                            expect =b;
                         
                         #1 
 

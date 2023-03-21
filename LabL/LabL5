@@ -1,0 +1,124 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_000002380f5dbba0 .scope module, "labL" "labL" 2 1;
+ .timescale 0 0;
+v000002380f7558c0_0 .var "a", 0 0;
+v000002380f755960_0 .var "b", 0 0;
+v000002380f755a00_0 .var "cin", 0 0;
+v000002380f755aa0_0 .net "cout", 0 0, L_000002380f7331a0;  1 drivers
+v000002380f7ad040_0 .var "expect", 1 0;
+v000002380f7ade00_0 .var/i "i", 31 0;
+v000002380f7adcc0_0 .var/i "j", 31 0;
+v000002380f7add60_0 .var/i "k", 31 0;
+v000002380f7ad220_0 .net "z", 0 0, L_000002380f5db730;  1 drivers
+S_000002380f5ddc00 .scope module, "my_adder" "yAdder1" 2 7, 3 1 0, S_000002380f5dbba0;
+ .timescale 0 0;
+    .port_info 0 /OUTPUT 1 "z";
+    .port_info 1 /OUTPUT 1 "cout";
+    .port_info 2 /INPUT 1 "a";
+    .port_info 3 /INPUT 1 "b";
+    .port_info 4 /INPUT 1 "cin";
+L_000002380f5de010 .functor XOR 1, v000002380f7558c0_0, v000002380f755960_0, C4<0>, C4<0>;
+L_000002380f5db730 .functor XOR 1, v000002380f755a00_0, L_000002380f5de010, C4<0>, C4<0>;
+L_000002380f732ec0 .functor AND 1, v000002380f7558c0_0, v000002380f755960_0, C4<1>, C4<1>;
+L_000002380f733020 .functor AND 1, L_000002380f5de010, v000002380f755a00_0, C4<1>, C4<1>;
+L_000002380f7331a0 .functor OR 1, L_000002380f733020, L_000002380f732ec0, C4<0>, C4<0>;
+v000002380f5dbd30_0 .net "a", 0 0, v000002380f7558c0_0;  1 drivers
+v000002380f732bf0_0 .net "b", 0 0, v000002380f755960_0;  1 drivers
+v000002380f5db690_0 .net "cin", 0 0, v000002380f755a00_0;  1 drivers
+v000002380f5ddd90_0 .net "cout", 0 0, L_000002380f7331a0;  alias, 1 drivers
+v000002380f5dde30_0 .net "outL", 0 0, L_000002380f732ec0;  1 drivers
+v000002380f5dded0_0 .net "outR", 0 0, L_000002380f733020;  1 drivers
+v000002380f5ddf70_0 .net "tmp", 0 0, L_000002380f5de010;  1 drivers
+v000002380f755820_0 .net "z", 0 0, L_000002380f5db730;  alias, 1 drivers
+    .scope S_000002380f5dbba0;
+T_0 ;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002380f7ade00_0, 0, 32;
+T_0.0 ;
+    %load/vec4 v000002380f7ade00_0;
+    %cmpi/s 2, 0, 32;
+    %jmp/0xz T_0.1, 5;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002380f7adcc0_0, 0, 32;
+T_0.2 ;
+    %load/vec4 v000002380f7adcc0_0;
+    %cmpi/s 2, 0, 32;
+    %jmp/0xz T_0.3, 5;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000002380f7add60_0, 0, 32;
+T_0.4 ;
+    %load/vec4 v000002380f7add60_0;
+    %cmpi/s 2, 0, 32;
+    %jmp/0xz T_0.5, 5;
+    %load/vec4 v000002380f7ade00_0;
+    %pad/s 1;
+    %store/vec4 v000002380f7558c0_0, 0, 1;
+    %load/vec4 v000002380f7adcc0_0;
+    %pad/s 1;
+    %store/vec4 v000002380f755960_0, 0, 1;
+    %load/vec4 v000002380f7add60_0;
+    %pad/s 1;
+    %store/vec4 v000002380f755a00_0, 0, 1;
+    %load/vec4 v000002380f7558c0_0;
+    %pad/u 2;
+    %load/vec4 v000002380f755960_0;
+    %pad/u 2;
+    %add;
+    %load/vec4 v000002380f755a00_0;
+    %pad/u 2;
+    %add;
+    %store/vec4 v000002380f7ad040_0, 0, 2;
+    %delay 1, 0;
+    %load/vec4 v000002380f7ad040_0;
+    %parti/s 1, 0, 2;
+    %load/vec4 v000002380f7ad220_0;
+    %cmp/ne;
+    %jmp/1 T_0.8, 6;
+    %flag_mov 8, 6;
+    %load/vec4 v000002380f7ad040_0;
+    %parti/s 1, 1, 2;
+    %load/vec4 v000002380f755aa0_0;
+    %cmp/ne;
+    %flag_or 6, 8;
+T_0.8;
+    %jmp/0xz  T_0.6, 6;
+    %vpi_call 2 24 "$display", "FAIL: a: %b, b: %b, cin: %b, z: %b, cout: %b,", v000002380f7558c0_0, v000002380f755960_0, v000002380f755a00_0, v000002380f7ad220_0, v000002380f755aa0_0 {0 0 0};
+T_0.6 ;
+    ; show_stmt_assign_vector: Get l-value for compressed += operand
+    %load/vec4 v000002380f7add60_0;
+    %pushi/vec4 1, 0, 32;
+    %add;
+    %store/vec4 v000002380f7add60_0, 0, 32;
+    %jmp T_0.4;
+T_0.5 ;
+    ; show_stmt_assign_vector: Get l-value for compressed += operand
+    %load/vec4 v000002380f7adcc0_0;
+    %pushi/vec4 1, 0, 32;
+    %add;
+    %store/vec4 v000002380f7adcc0_0, 0, 32;
+    %jmp T_0.2;
+T_0.3 ;
+    ; show_stmt_assign_vector: Get l-value for compressed += operand
+    %load/vec4 v000002380f7ade00_0;
+    %pushi/vec4 1, 0, 32;
+    %add;
+    %store/vec4 v000002380f7ade00_0, 0, 32;
+    %jmp T_0.0;
+T_0.1 ;
+    %vpi_call 2 29 "$finish" {0 0 0};
+    %end;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "LabL5.v";
+    "yAdder1.v";
