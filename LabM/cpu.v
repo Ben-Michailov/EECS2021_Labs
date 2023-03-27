@@ -1,3 +1,5 @@
+/* Name: Benjamin Michailov ID: 218917286*/
+
 module yMux1(z, a, b, c);
 output z;
 input a, b, c;
@@ -137,4 +139,99 @@ or my_or[31:0](or_wire,a,b);
 yArith my_arith(arith_wire, cout,a,b,op[2]);
 yMux4to1 #(32) my_4to1Mux(z,and_wire,or_wire,arith_wire,slt,op[1:0]);
 
+endmodule
+
+module yIF(ins, PCp4, PCin, clk);
+output [31:0] ins, PCp4;
+input [31:0] PCin;
+input clk;
+// build and connect the circuit
+
+reg PCRegEnable =1;
+reg readEnable =1;
+reg writeEnable =0;
+wire [31:0] PCRegOutput;
+reg [2:0] op = 'b010;
+wire zero;
+reg [31:0] four = 4;
+reg[31:0] memIn =0;
+
+
+register #(32) PCReg (PCRegOutput, PCin, clk, PCRegEnable);
+
+yAlu my_alu (PCp4, zero, PCRegOutput, four, op);
+
+mem my_mem(ins, PCRegOutput, memIn, clk, readEnable, writeEnable);
+
+endmodule
+
+module yID(rd1, rd2, immOut, jTarget, branch, ins, wd, RegWrite,
+clk);
+output [31:0] rd1, rd2, immOut;
+output [31:0] jTarget;
+output [31:0] branch;
+
+input [31:0] ins, wd;
+input RegWrite, clk;
+
+wire [19:0] zeros, ones; // For I-Type and SB-Type
+wire [11:0] zerosj, onesj; // For UJ-Type
+wire [31:0] imm, saveImm; // For S-Type
+
+rf myRF(rd1, rd2, ins[19:15], ins[24:20], ins[11:7], wd, clk,
+RegWrite);
+
+assign imm[11:0] = ins[31:20];
+assign zeros = 20'h00000;
+assign ones = 20'hFFFFF;
+yMux #(20) se(imm[31:12], zeros, ones, ins[31]);
+assign saveImm[11:5] = ins[31:25];
+assign saveImm[4:0] = ins[11:7];
+yMux #(20) saveImmSe(saveImm[31:12], zeros, ones, ins[31]);
+
+yMux #(32) immSelection(immOut, imm, saveImm, ins[5]);
+
+assign branch[11] = ins[31];
+assign branch[10] = ins[7];
+assign branch[9:4] = ins[30:25];
+assign branch[3:0] = ins[11:8];
+yMux #(20) bra(branch[31:12], zeros, ones, ins[31]);
+
+assign zerosj = 12'h000;
+assign onesj = 12'hFFF;
+assign jTarget[19] = ins[31];
+assign jTarget[18:11] = ins[19:12];
+assign jTarget[10] = ins[20];
+assign jTarget[9:0] = ins[30:21];
+yMux #(12) jum(jTarget[31:20], zerosj, onesj, jTarget[19]);
+endmodule
+
+module yEX(z, zero, rd1, rd2, imm, op, ALUSrc);
+output [31:0] z;
+output zero;
+input [31:0] rd1, rd2, imm;
+input [2:0] op;
+input ALUSrc;
+wire [31: 0] bout, bin;
+
+yMux #(32) ex_mux(bout, rd2, imm, ALUSrc);
+assign bin =bout;
+yAlu ex_alu(z, zero, rd1, bin, op);
+
+endmodule
+
+module yDM(memOut, exeOut, rd2, clk, MemRead, MemWrite);
+output [31:0] memOut;
+input [31:0] exeOut, rd2;
+input clk, MemRead, MemWrite;
+// instantiate the circuit (only one line)
+mem dm_mem(memOut, exeOut, rd2, clk, MemRead, MemWrite);
+endmodule
+//---------------------------------------------------------------
+module yWB(wb, exeOut, memOut, Mem2Reg);
+output [31:0] wb;
+input [31:0] exeOut, memOut;
+input Mem2Reg;
+// instantiate the circuit (only one line)
+yMux #(32) wb_mux(wb, exeOut,memOut, Mem2Reg);
 endmodule

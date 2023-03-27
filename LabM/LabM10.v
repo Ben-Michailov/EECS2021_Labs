@@ -1,0 +1,82 @@
+/* Name: Benjamin Michailov ID: 218917286*/
+
+module labM;
+reg [31:0] PCin;
+reg RegWrite, clk, ALUSrc, MemRead, MemWrite, Mem2Reg; 
+reg[2:0] op;
+wire [31:0] wd, rd1, rd2, imm, ins, PCp4, z, wb, memOut, branch;
+wire [25:0] jTarget;
+wire zero;
+yIF myIF(ins, PCp4, PCin, clk);
+yID myID(rd1, rd2, imm, jTarget, branch, ins, wd, RegWrite, clk);
+yEX myEx(z, zero, rd1, rd2, imm, op, ALUSrc);
+yDM myDM(memOut, z, rd2, clk, MemRead, MemWrite);
+yWB myWB(wb, z, memOut, Mem2Reg);
+assign wd = wb;
+initial
+begin
+    //------------------------------------Entry point
+    PCin = 16'h28;
+    //------------------------------------Run program
+    repeat (43)
+    begin
+        //---------------------------------Fetch an ins
+        clk = 1; #1;
+        //---------------------------------Set control signals
+        RegWrite = 0; ALUSrc = 1; op = 3'b010; MemRead=0; MemWrite=0; Mem2Reg =0;
+        // Add statements to adjust the above defaults
+        if (ins[6:0] == 7'h33) // R-Type
+        begin
+            if (ins[14:12]===3'b110)
+                op=3'b001;
+
+            RegWrite = 1; ALUSrc = 0; Mem2Reg =0;
+        end
+        else if (ins[6:0] == 7'h6F) //UJ-type
+        begin
+            RegWrite = 0; ALUSrc = 1;
+        end
+        else if  (ins[6:0] == 7'h3 || ins[6:0] == 7'h13) //I-type
+        begin
+            RegWrite = 1; ALUSrc = 1;
+            if (ins[6:0] == 7'h13) //addi
+            begin
+                Mem2Reg =0;
+            end
+            else// lw
+            begin
+                Mem2Reg =1; MemRead =1;
+            end
+        end
+        else if  (ins[6:0] == 7'h23)  // S-type 
+        begin
+            RegWrite = 0; ALUSrc = 1; MemWrite =1;
+        end
+        else if  (ins[6:0] == 7'h63) // SB-type 
+        begin
+            RegWrite = 0; ALUSrc = 0; 
+        end
+
+        //---------------------------------Execute the ins
+        clk = 0; #1;
+        //---------------------------------View results
+        $display("%h: rd1=%2d rd2=%2d z=%3d zero=%b wb=%2d",ins, rd1, rd2, z, zero, wb);
+
+        //---------------------------------Prepare for the next ins
+        if (ins[6:0] === 7'h63 && ins[14:12]===0  && zero === 1)
+        begin
+            PCin = PCin + (imm << 1);
+        end
+        else if (ins[6:0] === 7'h6F)
+        begin
+            PCin = PCin + (jTarget << 2); 
+        end
+        else
+            PCin = PCp4;
+        PCin[28]=0;
+    end
+    
+    $finish;
+end
+
+endmodule
